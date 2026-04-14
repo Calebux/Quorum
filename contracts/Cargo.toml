@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "escrow",
+    "arbiter-registry",
+    "pattern-registry",
+]
+resolver = "2"

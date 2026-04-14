@@ -1,0 +1,35 @@
+{
+  "name": "quorum",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Independent multi-agent verification layer for autonomous AI agent transactions on Stellar",
+  "main": "sdk/index.ts",
+  "scripts": {
+    "dev": "next dev --cwd src/dashboard",
+    "build": "next build --cwd src/dashboard",
+    "start": "next start --cwd src/dashboard",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@stellar/stellar-sdk": "^12.0.0",
+    "better-sqlite3": "^9.4.3",
+    "next": "14.2.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.10",
+    "@types/node": "^20.12.7",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.19",
+    "jest": "^29.7.0",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "ts-jest": "^29.1.3",
+    "typescript": "^5.4.5"
+  }
+}

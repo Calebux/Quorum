@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --quorum-violet: #8b5cf6;
+  --quorum-blue:   #3b82f6;
+  --quorum-green:  #22c55e;
+  --quorum-red:    #ef4444;
+}
