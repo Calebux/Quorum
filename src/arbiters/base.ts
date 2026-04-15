@@ -4,6 +4,20 @@ import { IntentManifest, ArbiterVerdict } from '../types/intent';
 import { ArbiterRegistryClient } from '../lib/registry-client';
 import { createHash } from 'crypto';
 
+/**
+ * Strip markdown code fences and extract the JSON object from a Claude response.
+ * Claude sometimes wraps JSON in ```json ... ``` despite being told not to.
+ */
+export function extractJson(text: string): string {
+  // Remove ```json ... ``` or ``` ... ``` wrappers
+  const fenced = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fenced) return fenced[1].trim();
+  // Fallback: find the first { ... } block
+  const braces = text.match(/\{[\s\S]*\}/);
+  if (braces) return braces[0];
+  return text.trim();
+}
+
 export abstract class BaseArbiter {
   abstract readonly id: string;
   abstract readonly speciality: 'intent' | 'parameter' | 'adversarial';

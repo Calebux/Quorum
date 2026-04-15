@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IntentManifest } from '../../../../types/intent';
 import { QuorumClient } from '../../../../quorum-client';
-import { broadcastEvent } from '../../stream/emitter';
+import { broadcastEvent } from '../stream/emitter';
 
 const quorum = new QuorumClient({ network: 'testnet' });
 

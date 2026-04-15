@@ -1,4 +1,4 @@
-import { BaseArbiter } from './base';
+import { BaseArbiter, extractJson } from './base';
 import { IntentManifest } from '../types/intent';
 import { PatternRegistryClient } from '../lib/pattern-client';
 import { Keypair } from '@stellar/stellar-sdk';
@@ -95,7 +95,8 @@ Does this proposal show signs of adversarial manipulation not covered by the kno
       messages:   [{ role: 'user', content: userMessage }],
     });
 
-    const text = response.content[0].type === 'text' ? response.content[0].text : '{}';
+    const raw  = response.content[0].type === 'text' ? response.content[0].text : '{}';
+    const text = extractJson(raw);
 
     try {
       const result = JSON.parse(text) as {
