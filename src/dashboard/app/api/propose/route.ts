@@ -2,10 +2,30 @@ import { NextRequest, NextResponse } from 'next/server';
 import { IntentManifest } from '../../../../types/intent';
 import { QuorumClient } from '../../../../quorum-client';
 import { broadcastEvent } from '../stream/emitter';
+import { buildPaymentRequired, verifyPayment } from '../../../../lib/x402';
 
 const quorum = new QuorumClient({ network: 'testnet' });
 
 export async function POST(req: NextRequest) {
+  // x402 payment gate — 0.01 USDC on Stellar testnet per verification call
+  const paymentHeader = req.headers.get('X-PAYMENT');
+  const requirement   = buildPaymentRequired(req.url);
+  const payment       = await verifyPayment(paymentHeader, requirement);
+
+  if (!payment.valid) {
+    return new Response(JSON.stringify({
+      error:  'Payment Required',
+      reason: payment.reason,
+      x402:   requirement,
+    }), {
+      status:  402,
+      headers: {
+        'Content-Type':       'application/json',
+        'X-PAYMENT-REQUIRED': JSON.stringify(requirement),
+      },
+    });
+  }
+
   let manifest: IntentManifest;
 
   try {

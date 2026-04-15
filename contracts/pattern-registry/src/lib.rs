@@ -77,6 +77,35 @@ impl PatternRegistry {
 
     /// Returns all pattern signatures as a list — used by Adversarial Arbiter.
     pub fn get_all_signatures(env: Env) -> Vec<String> {
-        Vec::new(&env)  // placeholder — implement storage iteration
+        let mut signatures: Vec<String> = Vec::new(&env);
+        let ids = [
+            "P001","P002","P003","P004","P005",
+            "P006","P007","P008","P009","P010",
+            "P011","P012","P013","P014","P015",
+        ];
+        for id_str in ids.iter() {
+            let id = String::from_str(&env, id_str);
+            if let Some(pattern) = env.storage().persistent().get::<String, AttackPattern>(&id) {
+                signatures.push_back(pattern.signature);
+            }
+        }
+        signatures
+    }
+
+    /// Returns all full AttackPattern objects — used when descriptions and categories are needed.
+    pub fn get_all_patterns(env: Env) -> Vec<AttackPattern> {
+        let mut patterns: Vec<AttackPattern> = Vec::new(&env);
+        let ids = [
+            "P001","P002","P003","P004","P005",
+            "P006","P007","P008","P009","P010",
+            "P011","P012","P013","P014","P015",
+        ];
+        for id_str in ids.iter() {
+            let id = String::from_str(&env, id_str);
+            if let Some(pattern) = env.storage().persistent().get::<String, AttackPattern>(&id) {
+                patterns.push_back(pattern);
+            }
+        }
+        patterns
     }
 }

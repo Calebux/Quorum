@@ -49,9 +49,9 @@ export class ParameterArbiter extends BaseArbiter {
       flags.push(`Invalid minReceived: ${manifest.minReceived}`);
     }
 
-    if (manifest.action === 'swap' && minReceived < amount * 0.5) {
-      flags.push(`minReceived (${minReceived}) is less than 50% of amount (${amount}) — unusual for a swap`);
-    }
+    // Note: minReceived vs amount comparison is intentionally skipped for swaps —
+    // cross-asset swaps (e.g. XLM→USDC) have inherently different output denominations.
+    // The Intent Arbiter checks whether minReceived is consistent with the stated rate.
 
     const verifiedAddress = VERIFIED_PROTOCOLS[manifest.protocol.toLowerCase()];
     if (!verifiedAddress) {

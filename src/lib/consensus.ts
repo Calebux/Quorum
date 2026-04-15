@@ -5,6 +5,7 @@ import { AdversarialArbiter } from '../arbiters/adversarial-arbiter';
 import { EscrowClient } from './escrow-client';
 import { assessRisk } from './risk-scorer';
 import { StellarExec } from './stellar-exec';
+import { db } from './db';
 
 export class ConsensusManager {
   private intentArbiter:     IntentArbiter;
@@ -37,7 +38,7 @@ export class ConsensusManager {
       const txHash = await EscrowClient.releaseFunds(manifest.proposalId, manifest.protocolAddress);
       await StellarExec.execute(manifest, txHash);
 
-      return {
+      const decision: QuorumDecision = {
         proposalId:      manifest.proposalId,
         outcome:         'approved',
         verdicts,
@@ -47,11 +48,17 @@ export class ConsensusManager {
         executionTxHash: txHash,
         timestamp:       Date.now(),
       };
+      try {
+        db.saveDecision(manifest, decision);
+      } catch (err) {
+        console.warn('[Quorum] Failed to persist decision:', err);
+      }
+      return decision;
     } else {
       await EscrowClient.returnFunds(manifest.proposalId);
       const incidentId = await this.logIncident(manifest, verdicts);
 
-      return {
+      const decision: QuorumDecision = {
         proposalId:    manifest.proposalId,
         outcome:       'rejected',
         verdicts,
@@ -61,6 +68,12 @@ export class ConsensusManager {
         incidentId,
         timestamp:     Date.now(),
       };
+      try {
+        db.saveDecision(manifest, decision);
+      } catch (err) {
+        console.warn('[Quorum] Failed to persist decision:', err);
+      }
+      return decision;
     }
   }
 

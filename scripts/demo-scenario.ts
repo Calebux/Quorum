@@ -19,6 +19,11 @@ async function runScenario(label: string, maxSlippage: number) {
   console.log(`DEMO RUN: ${label}`);
   console.log('='.repeat(60));
 
+  // Expected output: 50,000 XLM × 0.098 rate = 4,900 USDC
+  // minReceived = expectedOutput × (1 - maxSlippage)
+  const expectedUsdc = 50000 * 0.098;                                  // 4900
+  const minReceived  = String(Math.floor(expectedUsdc * (1 - maxSlippage)));
+
   const manifest = quorum.buildManifest({
     action:          'swap',
     fromAsset:       'XLM',
@@ -28,7 +33,7 @@ async function runScenario(label: string, maxSlippage: number) {
     protocolAddress: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
     maxSlippage,
     deadline:        Math.floor(Date.now() / 1000) + 300,
-    minReceived:     '49000',
+    minReceived,     // Run 1 (8%): ~4508 USDC  |  Run 2 (1.5%): ~4826 USDC
     humanPrompt:     'Rebalance the DAO treasury — swap 50,000 XLM to USDC',
     agentReasoning:  'Treasury rebalancing per governance vote #47. XLM/USDC rate at 0.098, favourable for conversion.',
     network:         'testnet',

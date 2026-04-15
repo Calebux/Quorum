@@ -5,6 +5,7 @@ import { IntentArbiter } from './arbiters/intent-arbiter';
 import { ParameterArbiter } from './arbiters/parameter-arbiter';
 import { AdversarialArbiter } from './arbiters/adversarial-arbiter';
 import { Keypair } from '@stellar/stellar-sdk';
+import { createHash } from 'crypto';
 
 export interface QuorumConfig {
   network:    'testnet' | 'mainnet';
@@ -18,16 +19,23 @@ export class QuorumClient {
   constructor(config: QuorumConfig) {
     this.config = config;
 
-    // Load keypairs from env if available, otherwise generate ephemeral ones
+    // Derive a deterministic dev keypair from a role name so the public key
+    // (and therefore on-chain reputation) is stable across restarts in dev mode.
+    function devKeypair(role: string): Keypair {
+      const seed = createHash('sha256').update(`quorum-dev-${role}`).digest();
+      return Keypair.fromRawEd25519Seed(seed);
+    }
+
+    // Load keypairs from env if available, otherwise derive deterministic dev keypairs
     const intentKeypair = process.env.ARBITER_INTENT_SECRET
       ? Keypair.fromSecret(process.env.ARBITER_INTENT_SECRET)
-      : Keypair.random();
+      : devKeypair('intent');
     const parameterKeypair = process.env.ARBITER_PARAMETER_SECRET
       ? Keypair.fromSecret(process.env.ARBITER_PARAMETER_SECRET)
-      : Keypair.random();
+      : devKeypair('parameter');
     const adversarialKeypair = process.env.ARBITER_ADVERSARIAL_SECRET
       ? Keypair.fromSecret(process.env.ARBITER_ADVERSARIAL_SECRET)
-      : Keypair.random();
+      : devKeypair('adversarial');
 
     const intentArbiter      = new IntentArbiter(`arbiter-intent-${intentKeypair.publicKey().slice(0, 8)}`, intentKeypair);
     const parameterArbiter   = new ParameterArbiter(`arbiter-param-${parameterKeypair.publicKey().slice(0, 8)}`, parameterKeypair);

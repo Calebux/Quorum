@@ -7,6 +7,7 @@ import {
   nativeToScVal,
   scValToNative,
 } from '@stellar/stellar-sdk';
+import { db } from './db';
 
 const RPC_URL         = process.env.STELLAR_RPC_URL ?? 'https://soroban-testnet.stellar.org';
 const CONTRACT_ID     = process.env.PATTERN_REGISTRY_CONTRACT_ID ?? '';
@@ -48,14 +49,19 @@ patternCache.push(...SEED_PATTERNS);
 
 export const PatternRegistryClient = {
   async getAllSignatures(): Promise<PatternRecord[]> {
-    // In mock/dev mode return the in-memory cache
-    return [...patternCache];
+    const catches = db.getPatternCatches();
+    return patternCache.map(p => ({
+      ...p,
+      catch_count: catches[p.pattern_id] ?? p.catch_count,
+    }));
   },
 
   async recordCatch(patternId: string): Promise<void> {
     // Update in-memory cache immediately
     const local = patternCache.find(p => p.pattern_id === patternId);
     if (local) local.catch_count += 1;
+    // Persist to SQLite
+    db.incrementPatternCatch(patternId);
 
     if (!CONTRACT_ID || !ORCHESTRATOR_SK) return;
     const keypair = Keypair.fromSecret(ORCHESTRATOR_SK);
