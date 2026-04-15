@@ -8,3 +8,5 @@ target/
 *.log
 .DS_Store
 *.db
+quorum.db-shm
+quorum.db-wal

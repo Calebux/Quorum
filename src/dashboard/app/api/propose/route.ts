@@ -72,12 +72,15 @@ export async function POST(req: NextRequest) {
       broadcastEvent({
         type: 'arbiter:verdict',
         payload: {
-          proposalId: verdict.proposalId,
-          arbiterId:  verdict.arbiterId,
-          decision:   verdict.decision,
-          confidence: verdict.confidence,
-          flags:      verdict.flags,
-          reasoning:  verdict.reasoning,
+          proposalId:  verdict.proposalId,
+          arbiterId:   verdict.arbiterId,
+          arbiterRole: verdict.arbiterId.includes('intent') ? 'Intent'
+                     : verdict.arbiterId.includes('param')  ? 'Parameter'
+                     : 'Adversarial',
+          decision:    verdict.decision,
+          confidence:  verdict.confidence,
+          flags:       verdict.flags,
+          reasoning:   verdict.reasoning,
         },
       });
     }

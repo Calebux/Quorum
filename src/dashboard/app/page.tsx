@@ -81,6 +81,8 @@ export default function LiveFeed() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const evtSourceRef = useRef<EventSource | null>(null);
 
+  const [stats, setStats] = useState<{ totalProposals: number; approved: number; rejected: number } | null>(null);
+
   const [form, setForm] = useState<FormData>({
     action: 'swap', fromAsset: 'XLM', toAsset: 'USDC', amount: '500',
     protocol: 'soroswap',
@@ -91,6 +93,15 @@ export default function LiveFeed() {
   });
 
   useEffect(() => {
+    fetch('/api/history')
+      .then(r => r.json())
+      .then((data: { stats: { totalProposals: number; approved: number; rejected: number } }) => {
+        setStats(data.stats);
+      })
+      .catch(() => {}); // silently ignore if DB not ready
+  }, []);
+
+  useEffect(() => {
     const src = new EventSource('/api/stream');
     evtSourceRef.current = src;
     src.onopen    = () => setConnected(true);
@@ -98,6 +109,12 @@ export default function LiveFeed() {
       try {
         const event = JSON.parse(e.data as string) as StreamEvent;
         setEvents(prev => [{ ...event, id: event.id ?? crypto.randomUUID() }, ...prev].slice(0, 100));
+        if (event.type === 'consensus:reached') {
+          fetch('/api/history')
+            .then(r => r.json())
+            .then((d: { stats: { totalProposals: number; approved: number; rejected: number } }) => setStats(d.stats))
+            .catch(() => {});
+        }
       } catch { /* ignore */ }
     };
     src.onerror = () => setConnected(false);
@@ -184,6 +201,21 @@ export default function LiveFeed() {
           </button>
         </div>
       </div>
+
+      {stats && (
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          {[
+            { label: 'Total Verified',  value: stats.totalProposals, colour: 'text-white' },
+            { label: 'Approved',        value: stats.approved,       colour: 'text-green-400' },
+            { label: 'Rejected',        value: stats.rejected,       colour: 'text-red-400' },
+          ].map(s => (
+            <div key={s.label} className="border border-gray-800 rounded-lg px-4 py-3 bg-gray-900 text-center">
+              <div className={`text-2xl font-bold ${s.colour}`}>{s.value}</div>
+              <div className="text-xs text-gray-500 mt-0.5">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {formOpen && (
         <div className="border border-violet-800 rounded-lg p-5 bg-gray-900 mb-6">
@@ -296,7 +328,9 @@ export default function LiveFeed() {
               )}
               {event.type === 'arbiter:verdict' && (
                 <div className="flex items-center gap-3 flex-wrap">
-                  <span className="text-gray-400 text-sm font-mono text-xs">{String(event.payload.arbiterId)}</span>
+                  <span className="text-gray-400 text-sm font-medium">
+                    {String(event.payload.arbiterRole ?? event.payload.arbiterId)}
+                  </span>
                   <OutcomeBadge outcome={String(event.payload.decision)} />
                   <span className="text-gray-500 text-xs">{Math.round((event.payload.confidence as number) * 100)}% confidence</span>
                   {(event.payload.flags as string[])?.length > 0 && (

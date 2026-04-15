@@ -2,7 +2,11 @@ import Database from 'better-sqlite3';
 import path from 'path';
 import { QuorumDecision } from '../types/intent';
 
-const DB_PATH = process.env.QUORUM_DB_PATH ?? path.join(process.cwd(), 'quorum.db');
+// Works whether CWD is project root or src/dashboard/
+const DB_PATH = process.env.QUORUM_DB_PATH
+  ?? (process.cwd().endsWith('src/dashboard')
+      ? path.join(process.cwd(), '../../quorum.db')
+      : path.join(process.cwd(), 'quorum.db'));
 
 let _db: Database.Database | null = null;
 
@@ -140,7 +144,8 @@ export const db = {
       SELECT id, agent_id as agentId, action, from_asset as fromAsset,
              to_asset as toAsset, amount, protocol, risk_tier as riskTier,
              outcome, approval_count as approvalCount, required_count as requiredCount,
-             exec_tx_hash as execTxHash, human_prompt as humanPrompt, created_at as createdAt
+             exec_tx_hash as execTxHash, human_prompt as humanPrompt,
+             created_at as createdAt
       FROM proposals
       ORDER BY created_at DESC
       LIMIT ?

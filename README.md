@@ -215,16 +215,17 @@ Run `npm run demo` to see the full scenario end-to-end:
 **Run 1 — 8% slippage (expected: rejected)**
 - Risk tier: `high-scrutiny` (50,000 XLM exceeds threshold)
 - All 3 arbiters run in parallel
-- **Intent Arbiter:** rejects — flags slippage as excessive for the stated intent
+- **Intent Arbiter:** rejects — flags excessive slippage and poor protection for a large treasury operation
 - **Parameter Arbiter:** approves — amounts and deadline are technically valid
-- **Adversarial Arbiter:** rejects — 8% slippage on a major pair creates significant MEV/sandwich exposure
-- Result: 1/2 required approvals → **rejected**, funds returned to agent
+- **Adversarial Arbiter:** rejects — MEV exposure, governance reference unverifiable
+- Result: 1/3 approve, need 2/3 → **rejected**, funds returned to agent
 
 **Run 2 — 1.5% slippage (expected: approved)**
 - Same proposal with slippage corrected
-- **Parameter Arbiter:** approves
-- **Adversarial Arbiter:** approves — all parameters within safe bounds
-- Result: 2/2 required approvals → **approved**, escrow releases, Soroswap executes
+- **Intent Arbiter:** approves — action, assets, amount and slippage-adjusted minReceived all consistent
+- **Parameter Arbiter:** approves — all parameters within safe ranges
+- **Adversarial Arbiter:** approves — clean parameters, no injection attempts
+- Result: 3/3 → **approved**, escrow releases, Soroswap executes
 
 ---
 

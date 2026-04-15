@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { db } from '../../../../lib/db';
 
 export default function ProposalPage({ params }: { params: { id: string } }) {

@@ -115,7 +115,7 @@ export default function ArbitersPage() {
               </div>
               <div>
                 <div className="text-white font-medium text-sm">{arbiter.speciality}</div>
-                <div className="text-gray-500 text-xs font-mono">{arbiter.id}</div>
+                <div className="text-gray-500 text-xs">{arbiter.id.replace('arbiter-', '').replace('adv', 'adversarial')} arbiter</div>
               </div>
             </div>
 

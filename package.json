@@ -5,9 +5,9 @@
   "description": "Independent multi-agent verification layer for autonomous AI agent transactions on Stellar",
   "main": "sdk/index.ts",
   "scripts": {
-    "dev": "next dev --cwd src/dashboard",
-    "build": "next build --cwd src/dashboard",
-    "start": "next start --cwd src/dashboard",
+    "dev": "cd src/dashboard && next dev",
+    "build": "cd src/dashboard && next build",
+    "start": "cd src/dashboard && next start",
     "demo": "tsx scripts/demo-scenario.ts",
     "seed": "tsx scripts/seed-patterns.ts",
     "test": "jest",
